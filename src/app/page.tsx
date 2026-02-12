@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { translateText } from '../../component/api';
 
 const LANGUAGES = [
   { code: 'en', name: 'English' },
@@ -24,13 +25,12 @@ export default function TranslatorPage() {
     
     setIsLoading(true);
     try {
-      // Simulating API call - in a real app, you would connect to a translation service
-      // For demo purposes, we'll just reverse the text
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simple mock translation (reversing text for demo)
-      const reversedText = inputText.split('').reverse().join('');
-      setTranslatedText(reversedText);
+      const translated = await translateText({
+        text: inputText,
+        source: sourceLanguage,
+        target: targetLanguage,
+      });
+      setTranslatedText(translated);
     } catch (error) {
       console.error('Translation error:', error);
       setTranslatedText('Translation failed. Please try again.');
@@ -42,9 +42,11 @@ export default function TranslatorPage() {
   const swapLanguages = () => {
     setSourceLanguage(targetLanguage);
     setTargetLanguage(sourceLanguage);
+    // Swap the texts
+    const tempText = inputText;
     setInputText(translatedText);
-    setTranslatedText(inputText);
-    // Automatically translate after swapping languages
+    setTranslatedText(tempText);
+    // Automatically translate after swapping if there's text to translate
     if (translatedText) {
       handleTranslate();
     }
